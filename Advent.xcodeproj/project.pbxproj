@@ -97,7 +97,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A1B4FFF42CFD918F0049A3C8 /* Build configuration list for PBXProject "Advent1" */;
+			buildConfigurationList = A1B4FFF42CFD918F0049A3C8 /* Build configuration list for PBXProject "Advent" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -277,7 +277,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A1B4FFF42CFD918F0049A3C8 /* Build configuration list for PBXProject "Advent1" */ = {
+		A1B4FFF42CFD918F0049A3C8 /* Build configuration list for PBXProject "Advent" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1B4FFFE2CFD918F0049A3C8 /* Debug */,

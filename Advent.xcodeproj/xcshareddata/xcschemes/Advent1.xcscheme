@@ -18,7 +18,7 @@
                BlueprintIdentifier = "A1B4FFF82CFD918F0049A3C8"
                BuildableName = "Advent1"
                BlueprintName = "Advent1"
-               ReferencedContainer = "container:Advent1.xcodeproj">
+               ReferencedContainer = "container:Advent.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -49,7 +49,7 @@
             BlueprintIdentifier = "A1B4FFF82CFD918F0049A3C8"
             BuildableName = "Advent1"
             BlueprintName = "Advent1"
-            ReferencedContainer = "container:Advent1.xcodeproj">
+            ReferencedContainer = "container:Advent.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <CommandLineArguments>
@@ -72,7 +72,7 @@
             BlueprintIdentifier = "A1B4FFF82CFD918F0049A3C8"
             BuildableName = "Advent1"
             BlueprintName = "Advent1"
-            ReferencedContainer = "container:Advent1.xcodeproj">
+            ReferencedContainer = "container:Advent.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
