@@ -16,16 +16,54 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		A1BC02232CFDA30600614CDC /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		A1B4FFF92CFD918F0049A3C8 /* Advent1 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Advent1; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1BC02272CFDA30600614CDC /* Advent2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Advent2; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A1BC02152CFDA2E100614CDC /* Exceptions for "Advent2" folder in "Advent1" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				main.swift,
+			);
+			target = A1B4FFF82CFD918F0049A3C8 /* Advent1 */;
+		};
+		A1BC02282CFDA30600614CDC /* Exceptions for "Advent1" folder in "Advent2" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				main.swift,
+			);
+			target = A1BC02202CFDA30600614CDC /* Advent2 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A1B4FFFB2CFD918F0049A3C8 /* Advent1 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A1BC02282CFDA30600614CDC /* Exceptions for "Advent1" folder in "Advent2" target */,
+			);
 			path = Advent1;
+			sourceTree = "<group>";
+		};
+		A1BC02112CFDA2B800614CDC /* Advent2 */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A1BC02152CFDA2E100614CDC /* Exceptions for "Advent2" folder in "Advent1" target */,
+			);
+			path = Advent2;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -38,12 +76,20 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A1BC02222CFDA30600614CDC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		A1B4FFF02CFD918F0049A3C8 = {
 			isa = PBXGroup;
 			children = (
+				A1BC02112CFDA2B800614CDC /* Advent2 */,
 				A1B4FFFB2CFD918F0049A3C8 /* Advent1 */,
 				A1B4FFFA2CFD918F0049A3C8 /* Products */,
 			);
@@ -53,6 +99,7 @@
 			isa = PBXGroup;
 			children = (
 				A1B4FFF92CFD918F0049A3C8 /* Advent1 */,
+				A1BC02272CFDA30600614CDC /* Advent2 */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -74,12 +121,36 @@
 			);
 			fileSystemSynchronizedGroups = (
 				A1B4FFFB2CFD918F0049A3C8 /* Advent1 */,
+				A1BC02112CFDA2B800614CDC /* Advent2 */,
 			);
 			name = Advent1;
 			packageProductDependencies = (
 			);
 			productName = Advent1;
 			productReference = A1B4FFF92CFD918F0049A3C8 /* Advent1 */;
+			productType = "com.apple.product-type.tool";
+		};
+		A1BC02202CFDA30600614CDC /* Advent2 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1BC02242CFDA30600614CDC /* Build configuration list for PBXNativeTarget "Advent2" */;
+			buildPhases = (
+				A1BC02212CFDA30600614CDC /* Sources */,
+				A1BC02222CFDA30600614CDC /* Frameworks */,
+				A1BC02232CFDA30600614CDC /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A1B4FFFB2CFD918F0049A3C8 /* Advent1 */,
+				A1BC02112CFDA2B800614CDC /* Advent2 */,
+			);
+			name = Advent2;
+			packageProductDependencies = (
+			);
+			productName = Advent1;
+			productReference = A1BC02272CFDA30600614CDC /* Advent2 */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -112,12 +183,20 @@
 			projectRoot = "";
 			targets = (
 				A1B4FFF82CFD918F0049A3C8 /* Advent1 */,
+				A1BC02202CFDA30600614CDC /* Advent2 */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A1B4FFF52CFD918F0049A3C8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1BC02212CFDA30600614CDC /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -265,6 +344,26 @@
 			};
 			name = Release;
 		};
+		A1BC02252CFDA30600614CDC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A1BC02262CFDA30600614CDC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -282,6 +381,15 @@
 			buildConfigurations = (
 				A1B4FFFE2CFD918F0049A3C8 /* Debug */,
 				A1B4FFFF2CFD918F0049A3C8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1BC02242CFDA30600614CDC /* Build configuration list for PBXNativeTarget "Advent2" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1BC02252CFDA30600614CDC /* Debug */,
+				A1BC02262CFDA30600614CDC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
