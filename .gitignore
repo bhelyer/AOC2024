@@ -1,2 +1,5 @@
 input.txt
 .DS_Store
+*.xcodeproj
+DerivedData
+i*.txt
