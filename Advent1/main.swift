@@ -14,7 +14,7 @@ if CommandLine.arguments.count != 2 {
 }
 
 // Load the input into a string.
-let url = URL(filePath: CommandLine.arguments[1])
+let url = URL(fileURLWithPath: CommandLine.arguments[1])
 guard let input = try? String(contentsOf: url, encoding: .utf8) else {
     print("Failed to read from '\(url)'.")
     exit(1)
