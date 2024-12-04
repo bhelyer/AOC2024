@@ -127,6 +127,60 @@ func makeDiagonal(_ string: String) throws -> [String] {
     return diagonalLines
 }
 
+/// A two-dimensional array of characters.
+struct WordGrid {
+    /// The width of the grid, in characters.
+    public let width: Int
+    /// The height of the grid in characters.
+    public let height: Int
+    private let grid: [[Character]]
+
+    /// Create a `WordGrid` from an input string.
+    /// This should be lines of the same width or something will explode.
+    init(_ input: String) throws {
+        let lines = input.split { $0.isNewline }
+        guard !lines.isEmpty && !lines[0].isEmpty else {
+            throw ProgramError.invalidInput
+        }
+        width = lines[0].count
+        height = lines.count
+        // Convert the array of Substrings into an array of an array of Characters.
+        var arrays: [[Character]] = []
+        for line in lines {
+            arrays.append(Array(line))
+        }
+        grid = arrays
+    }
+    
+    /// Look up the `Character` at the given coordinates.
+    /// If the point is out of bounds, a space is returned.
+    func get(_ p: Point) -> Character {
+        guard p.x >= 0 && p.x < width && p.y >= 0 && p.y < height else {
+            // Out of bounds.
+            return " "
+        }
+        return grid[p.y][p.x]
+    }
+}
+
+func isMS(_ a: Character, _ b: Character) -> Bool {
+    return (a == "M" && b == "S") || (a == "S" && b == "M")
+}
+
+/// Returns `true` if `centre` is the centre point of an X-MAS pattern.
+func isXMas(_ grid: WordGrid, centre: Point) -> Bool {
+    // If the centre isn't 'A', then this isn't an X-MAS.
+    if grid.get(centre) != "A" {
+        return false
+    }
+    // Check both the diagonals for M and S.
+    let nw = centre - Point(x: 1, y: 1)
+    let se = centre + Point(x: 1, y: 1)
+    let ne = centre + Point(x: 1, y: -1)
+    let sw = centre + Point(x: -1, y: 1)
+    return isMS(grid.get(nw), grid.get(se)) && isMS(grid.get(ne), grid.get(sw))
+}
+
 class Day4: Program {
     func run(input: String) throws {
         try part1(input: input)
@@ -157,6 +211,14 @@ class Day4: Program {
     
     func part2(input: String) throws {
         var xMasCount = 0
+        let grid = try WordGrid(input)
+        for y in 0..<grid.height {
+            for x in 0..<grid.width {
+                if isXMas(grid, centre: Point(x: x, y: y)) {
+                    xMasCount += 1
+                }
+            }
+        }
         print("X-Mas Count = \(xMasCount)")
     }
 }
