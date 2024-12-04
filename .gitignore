@@ -4,3 +4,4 @@ input.txt
 DerivedData
 i*.txt
 .build
+.swiftpm
