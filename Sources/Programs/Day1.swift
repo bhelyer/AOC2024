@@ -1,5 +1,6 @@
 class Day1: Program {
-    func run(_ lines: [String.SubSequence]) throws {
+    func run(input: String) throws {
+        let lines = input.split { $0.isNewline }
         // Parse the input into two lists of integers.
         var list1 = [Int]()
         var list2 = [Int]()

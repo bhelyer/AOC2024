@@ -60,7 +60,8 @@ private func isSafeWithDampener(_ report: [Int]) -> Bool {
 }
 
 class Day2: Program {
-    func run(_ lines: [String.SubSequence]) throws {
+    func run(input: String) throws {
+        let lines = input.split { $0.isNewline }
         var safeReports = 0
         for reportLine in lines {
             let report = reportLine.split { $0.isWhitespace }.map { Int($0)! }

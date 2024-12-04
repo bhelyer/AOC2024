@@ -22,40 +22,38 @@ class Day3: Program {
     let doExp = /do\(\)/
     let dontExp = /don't\(\)/
     
-    func run(_ lines: [String.SubSequence]) throws {
+    func run(input: String) throws {
         var enabled = true
         var sum = 0
         var enabledSum = 0
-        for line in lines {
-            var asStr = String(line)
-            while !asStr.isEmpty {
-                let dontMatch = asStr.firstMatch(of: dontExp)
-                let doMatch = asStr.firstMatch(of: doExp)
-                let mulMatch = asStr.firstMatch(of: mulExp)
-                let dontIdx = dontMatch?.range
-                let doIdx = doMatch?.range
-                let mulIdx = mulMatch?.range
-                let inst = getInstruction(dont: dontIdx, do: doIdx, mul: mulIdx)
-                if inst == nil {
-                    asStr = ""
-                    break
+        var asStr = String(input)
+        while !asStr.isEmpty {
+            let dontMatch = asStr.firstMatch(of: dontExp)
+            let doMatch = asStr.firstMatch(of: doExp)
+            let mulMatch = asStr.firstMatch(of: mulExp)
+            let dontIdx = dontMatch?.range
+            let doIdx = doMatch?.range
+            let mulIdx = mulMatch?.range
+            let inst = getInstruction(dont: dontIdx, do: doIdx, mul: mulIdx)
+            if inst == nil {
+                asStr = ""
+                break
+            }
+            switch inst! {
+            case .doInst:
+                enabled = true
+                asStr = String(asStr[doMatch!.range.upperBound...])
+            case .dontInst:
+                enabled = false
+                asStr = String(asStr[dontMatch!.range.upperBound...])
+            case .mulInst:
+                let a = try Int(String(mulMatch!.output.1), format: .number)
+                let b = try Int(String(mulMatch!.output.2), format: .number)
+                sum += a * b
+                if enabled {
+                    enabledSum += a * b
                 }
-                switch inst! {
-                case .doInst:
-                    enabled = true
-                    asStr = String(asStr[doMatch!.range.upperBound...])
-                case .dontInst:
-                    enabled = false
-                    asStr = String(asStr[dontMatch!.range.upperBound...])
-                case .mulInst:
-                    let a = try Int(String(mulMatch!.output.1), format: .number)
-                    let b = try Int(String(mulMatch!.output.2), format: .number)
-                    sum += a * b
-                    if enabled {
-                        enabledSum += a * b
-                    }
-                    asStr = String(asStr[mulMatch!.range.upperBound...])
-                }
+                asStr = String(asStr[mulMatch!.range.upperBound...])
             }
         }
         print("Sum = \(sum)")

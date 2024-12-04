@@ -6,8 +6,8 @@ import Foundation
 do {
     let argument = try Arguments(CommandLine.arguments)
     let program = try getProgram(byName: argument.programName)
-    let lines = try loadLines(fromFile: argument.inputPath)
-    try program.run(lines)
+    let inputStr = try String(contentsOf: argument.inputPath, encoding: .utf8)
+    try program.run(input: inputStr)
 } catch {
     print("Error: \(error)")
     exit(1)

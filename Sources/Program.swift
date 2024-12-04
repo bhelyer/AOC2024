@@ -1,7 +1,7 @@
 /// Each day's puzzle is represented by a `Program`.
 /// Use the `getProgram` function to create an instance.
 protocol Program {
-    func run(_ lines: [String.SubSequence]) throws
+    func run(input: String) throws
 }
 
 /// These can be thrown by `getProgram`, and `Program.run`
