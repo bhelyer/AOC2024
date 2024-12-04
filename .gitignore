@@ -3,3 +3,4 @@ input.txt
 *.xcodeproj
 DerivedData
 i*.txt
+.build
