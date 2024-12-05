@@ -2,13 +2,26 @@ class Day5: Program {
     func run(input: String) throws {
         let rules = parseRules(from: input)
         let updates = parseUpdates(from: input)
+        
+        // Part 1, sum of correct updates.
         let correctUpdates = updates.filter { validate(update: $0, against: rules) }
         var sum = 0
         for correctUpdate in correctUpdates {
             let middleIndex = correctUpdate.count / 2
             sum += correctUpdate[middleIndex]
         }
-        print("Sum = \(sum)")
+        
+        // Part 2, sum of corrected updates.
+        let correctedUpdates = updates.filter { !validate(update: $0, against: rules) }
+            .map { correctUpdate(update: $0, against: rules) }
+        var correctedSum = 0
+        for correctedUpdate in correctedUpdates {
+            let middleIndex = correctedUpdate.count / 2
+            correctedSum += correctedUpdate[middleIndex]
+        }
+        
+        print("Correct Sum = \(sum)")
+        print("Corrected Sum = \(correctedSum)")
     }
 }
 
@@ -72,4 +85,24 @@ func validate(update: Update, against rule: Rule) -> Bool {
         return true
     }
     return pre! < post!
+}
+
+func correctUpdate(update: Update, against rules: [Rule]) -> Update {
+    var mutUpdate = update
+    while !validate(update: mutUpdate, against: rules) {
+        for rule in rules {
+            if !validate(update: mutUpdate, against: rule) {
+                mutUpdate = fix(update: mutUpdate, wrt: rule)
+            }
+        }
+    }
+    return mutUpdate
+}
+
+func fix(update: Update, wrt rule: Rule) -> Update {
+    var mutUpdate = update
+    let pre = update.firstIndex(of: rule.pre)
+    let post = update.firstIndex(of: rule.post)
+    mutUpdate.swapAt(pre!, post!)
+    return mutUpdate
 }
