@@ -1,3 +1,5 @@
+import Darwin
+
 class Day7: Program {
     func run(input: String) throws {
         try part1(input: input)
@@ -16,19 +18,28 @@ class Day7: Program {
     }
     
     func part2(input: String) throws {
-        print("Day 7, part 2")
+        let equations = parseEquations(input)
+        var sum = 0
+        for equation in equations {
+            if isSolvablePart2(equation) {
+                sum += equation.result
+            }
+        }
+        print("Total Calibration 2 Result = \(sum)")
     }
 }
 
 enum Operator {
     case add
     case mul
+    case cat
 }
 
 func eval(_ a: Int, _ b: Int, _ op: Operator) -> Int {
     switch op {
     case .add: return a + b
     case .mul: return a * b
+    case .cat: return Int(String(a) + String(b))!
     }
 }
 
@@ -91,6 +102,18 @@ func isSolvable(_ equation: Equation) -> Bool {
     return false
 }
 
+func isSolvablePart2(_ equation: Equation) -> Bool {
+    let operatorLists = getAllPossibleOperatorsPart2(equation)
+    for operators in operatorLists {
+        var testEquation = equation
+        testEquation.operators = operators
+        if testEquation.eval() == testEquation.result {
+            return true
+        }
+    }
+    return false
+}
+
 func getAllPossibleOperators(_ equation: Equation) -> [[Operator]] {
     var operatorLists: [[Operator]] = []
     let trials = 1 << equation.operators.count // 2^^count
@@ -109,4 +132,28 @@ func numberToOperators(_ i: Int, size: Int) -> [Operator] {
         }
     }
     return operators
+}
+func getAllPossibleOperatorsPart2(_ equation: Equation) -> [[Operator]] {
+    return aReallySlowCombinatorialExplosion(size: equation.operators.count)
+}
+
+nonisolated(unsafe) var sizeToOperators: [Int: [[Operator]]] = [:]
+func aReallySlowCombinatorialExplosion(size: Int) -> [[Operator]] {
+    if let cached = sizeToOperators[size] {
+        return cached
+    }
+    if size <= 1 {
+        return [[.add], [.mul], [.cat]]
+    } else {
+        let head = aReallySlowCombinatorialExplosion(size: 1)
+        let tail = aReallySlowCombinatorialExplosion(size: size - 1)
+        var results: [[Operator]] = []
+        for headOperators in head {
+            for tailOperators in tail {
+                results.append(headOperators + tailOperators)
+            }
+        }
+        sizeToOperators[size] = results
+        return results
+    }
 }
