@@ -23,3 +23,5 @@ struct Point: Hashable {
         return Point(x: left.x - right.x, y: left.y - right.y)
     }
 }
+
+let upDownLeftRight = [Point(x: 0, y: -1), Point(x: 0, y: 1), Point(x: -1, y: 0), Point(x: 1, y: 0)]

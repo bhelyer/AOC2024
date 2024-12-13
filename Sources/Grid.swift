@@ -56,6 +56,19 @@ struct Grid: CustomStringConvertible {
         return nil
     }
     
+    /// Find the first position of a non-matching character, or `nil` if it couldn't be found.
+    func findFirstNot(c: Character) -> Point? {
+        for y in 0..<height {
+            for x in 0..<width {
+                let p = Point(x: x, y: y)
+                if get(p) != c {
+                    return p
+                }
+            }
+        }
+        return nil
+    }
+    
     /// Calculate the number of instances of `c` in the grid.
     func count(c: Character) -> Int {
         var sum = 0
