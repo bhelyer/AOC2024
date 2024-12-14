@@ -8,7 +8,7 @@ class Day13: Program {
         var sum = 0
         let clawMachines = parseClawMachines(input: input)
         for machine in clawMachines {
-            let solutions = iterativeSolve(machine: machine)
+            let solutions = iterativeSolve(machine: machine, maxInput: 100)
             if let cheapestSolution = findCheapest(solutions: solutions) {
                 sum += cost(cheapestSolution)
             }
@@ -17,7 +17,18 @@ class Day13: Program {
     }
     
     func part2(input: String) throws {
-        print("Day 13, part 2.")
+        var sum = 0
+        let initialClawMachines = parseClawMachines(input: input)
+        let clawMachines = initialClawMachines.map {
+            ClawMachine(a: $0.a, b: $0.b, target: $0.target + Point(x: 10000000000000, y: 10000000000000))
+        }
+        for machine in clawMachines {
+            let solutions = solve(machine: machine)
+            if let cheapestSolution = findCheapest(solutions: solutions) {
+                sum += cost(cheapestSolution)
+            }
+        }
+        print("Sum = \(sum)")
     }
 }
 
@@ -90,15 +101,11 @@ func parsePrizeLine(line: String.SubSequence) -> Point? {
     return Point(x: x, y: y)
 }
 
-func iterativeSolve(machine: ClawMachine) -> [Solution] {
-    let maxInput = 100
-    
+func iterativeSolve(machine: ClawMachine, maxInput: Int) -> [Solution] {
     var solutions: [Solution] = []
     
     for a in 0...maxInput {
         for b in 0...maxInput {
-            // ax + bx = tx
-            // ay + by = ty
             let tx = a * machine.a.x + b * machine.b.x
             if tx != machine.target.x {
                 continue
@@ -125,4 +132,67 @@ func findCheapest(solutions: [Solution]) -> Solution? {
 
 func cost(_ solution: Solution) -> Int {
     return solution.a * 3 + solution.b
+}
+
+func solve(machine: ClawMachine) -> [Solution] {
+    // 1. Decide which unknown you wish to eliminate.
+    let a0 = machine.a.x
+    let a1 = machine.a.y
+    // 2. Find the least common multiple (lcm).
+    let m = lcm(a0, a1)
+    let a0m = m / a0
+    let a1m = m / a1
+    // 3. Multiply the equations by the above.
+    let scaledA0 = a0 * a0m
+    let scaledA1 = a1 * a1m
+    let scaledB0 = machine.b.x * a0m
+    let scaledB1 = machine.b.y * a1m
+    let scaledT0 = machine.target.x * a0m
+    let scaledT1 = machine.target.y * a1m
+    if scaledA0 != scaledA1 {
+        return []
+    }
+    // Using the above, find a solution for B.
+    var b: Int = 0
+    if scaledB0 > scaledB1 {
+        let bM = scaledB0 - scaledB1
+        if bM == 0 {
+            return []
+        }
+        b = (scaledT0 - scaledT1) / bM
+    } else {
+        let bM = scaledB1 - scaledB0
+        if bM == 0 {
+            return []
+        }
+        b = (scaledT1 - scaledT0) / bM
+    }
+    // Using B, find a solution for A.
+    let a = (machine.target.x - machine.b.x * b) / machine.a.x
+    let solution = Solution(a: a, b: b)
+    if !check(machine: machine, solution: solution) {
+        return []
+    } else {
+        return [solution]
+    }
+}
+
+func lcm(_ a: Int, _ b: Int) -> Int {
+    return a * b / gcd(a, b)
+}
+
+func gcd(_ a: Int, _ b: Int) -> Int {
+    var a = a
+    var b = b
+    while b != 0 {
+        let t = b
+        b = a % b
+        a = t
+    }
+    return a
+}
+
+func check(machine: ClawMachine, solution: Solution) -> Bool {
+    return (machine.a.x * solution.a + machine.b.x * solution.b == machine.target.x) &&
+           (machine.a.y * solution.a + machine.b.y * solution.b == machine.target.y)
 }
