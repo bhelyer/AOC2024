@@ -1,6 +1,17 @@
 struct Point: Hashable {
     let x: Int
     let y: Int
+    
+    /// Create a point with an X and Y of 0.
+    init() {
+        self.x = 0
+        self.y = 0
+    }
+    
+    init(x: Int, y: Int) {
+        self.x = x
+        self.y = y
+    }
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(x)
