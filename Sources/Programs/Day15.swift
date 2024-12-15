@@ -1,5 +1,10 @@
 class Day15: Program {
     func run(input: String) async throws {
+        print("Day 15 Part 1 = \(part1(input: input))")
+        print("Day 15 Part 2 = \(part2(input: input))")
+    }
+    
+    func part1(input: String) -> Int {
         let puzzle = Puzzle(parseFrom: input)
         let finalLayout = apply(moves: puzzle.moves, toLayout: puzzle.layout)
         let gpsScores = finalLayout.stones.map { calculateGpsCoordinate(stone: $0, mapSize: finalLayout.mapSize) }
@@ -7,7 +12,11 @@ class Day15: Program {
         for gpsScore in gpsScores {
             sum += gpsScore
         }
-        print("Day 15 Part 1 = \(sum)")
+        return sum
+    }
+    
+    func part2(input: String) -> Int {
+        return 0
     }
 }
 
