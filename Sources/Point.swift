@@ -43,3 +43,12 @@ enum CardinalDirection {
     case left
     case right
 }
+
+func toPoint(dir: CardinalDirection) -> Point {
+    switch dir {
+    case .up: return upDownLeftRight[0]
+    case .down: return upDownLeftRight[1]
+    case .left: return upDownLeftRight[2]
+    case .right: return upDownLeftRight[3]
+    }
+}
