@@ -1,3 +1,5 @@
+import Darwin
+
 class Day15: Program {
     func run(input: String) async throws {
         print("Day 15 Part 1 = \(part1(input: input))")
@@ -17,7 +19,7 @@ class Day15: Program {
     
     func part2(input: String) -> Int {
         let puzzle = Puzzle(parseFrom: input, wide: true)
-        let finalLayout = apply(moves: puzzle.moves, toLayout: puzzle.layout, print: true)
+        let finalLayout = apply(moves: puzzle.moves, toLayout: puzzle.layout, print: false)
         let gpsScores = finalLayout.stones.map { calculateGpsCoordinate(stone: $0, mapSize: finalLayout.mapSize) }
         var sum = 0
         for gpsScore in gpsScores {
@@ -84,6 +86,19 @@ struct Layout: CustomStringConvertible {
     var stones: [Point]
     var robot: Point
     
+    func firstStoneIndex(of p: Point) -> Int? {
+        if let leftI = stones.firstIndex(of: p) {
+            return leftI
+        }
+        if !wide {
+            return nil
+        }
+        if let rightI = stones.firstIndex(of: p + upDownLeftRight[2]) {
+            return rightI
+        }
+        return nil
+    }
+
     var description: String {
         var str = ""
         for y in 0..<mapSize.y {
@@ -108,11 +123,26 @@ struct Layout: CustomStringConvertible {
 }
 
 func apply(moves: [CardinalDirection], toLayout layout: Layout, print printMoves: Bool) -> Layout {
+    if printMoves { print("INITIAL") }
+    if printMoves { print(layout) }
     var layout = layout
     for move in moves {
         if printMoves { print(move) }
-        if printMoves { print(layout) }
+        var move = move
+        if printMoves {
+            let moveStr = readLine(strippingNewline: true)
+            if moveStr == "h" {
+                move = .left
+            } else if moveStr == "l" {
+                move = .right
+            } else if moveStr == "j" {
+                move = .down
+            } else if moveStr == "k" {
+                move = .up
+            }
+        }
         apply(move: move, toLayout: &layout)
+        if printMoves { print(layout) }
     }
     return layout
 }
@@ -123,7 +153,7 @@ func apply(move: CardinalDirection, toLayout layout: inout Layout) {
         // Walking into a wall.
         return
     }
-    if let i = layout.stones.firstIndex(of: nextPos) {
+    if let i = layout.firstStoneIndex(of: nextPos) {
         if !moveStone(move: move, stoneIndex: i, layout: &layout) {
             // Pushing a stone into a wall.
             return
@@ -133,12 +163,20 @@ func apply(move: CardinalDirection, toLayout layout: inout Layout) {
 }
 
 func moveStone(move: CardinalDirection, stoneIndex: Int, layout: inout Layout) -> Bool {
+    if layout.wide && (move == .up || move == .down) {
+        return moveWideStone(move: move, stoneIndex: stoneIndex, layout: &layout)
+    }
     let nextPos = layout.stones[stoneIndex] + toPoint(dir: move)
-    if let _ = layout.walls.first(where: { $0 == nextPos }) {
+    var pushPos = nextPos
+    if layout.wide && move == .right {
+        pushPos = pushPos + Point(x: 1, y: 0)
+    }
+    if let _ = layout.walls.first(where: { $0 == pushPos }) {
         // Pushing into a wall.
         return false
     }
-    if let i = layout.stones.firstIndex(of: nextPos) {
+    if let i = layout.firstStoneIndex(of: pushPos) {
+        assert(i != stoneIndex)
         // Pushing into another stone.
         if moveStone(move: move, stoneIndex: i, layout: &layout) {
             layout.stones[stoneIndex] = nextPos
@@ -149,6 +187,66 @@ func moveStone(move: CardinalDirection, stoneIndex: Int, layout: inout Layout) -
     }
     // Pushing onto empty space.
     layout.stones[stoneIndex] = nextPos
+    return true
+}
+
+func moveWideStone(move: CardinalDirection, stoneIndex: Int, layout: inout Layout) -> Bool {
+    assert(move == .up || move == .down)
+    assert(layout.wide)
+    
+    let nextL = layout.stones[stoneIndex] + toPoint(dir: move)
+    let nextR = layout.stones[stoneIndex] + upDownLeftRight[3] + toPoint(dir: move)
+    if let _ = layout.walls.first(where: { $0 == nextL}) {
+        return false
+    }
+    if let _ = layout.walls.first(where: { $0 == nextR}) {
+        return false
+    }
+    let lIndex = layout.firstStoneIndex(of: nextL)
+    let rIndex = layout.firstStoneIndex(of: nextR)
+    if lIndex != nil && rIndex != nil && lIndex! == rIndex! {
+        // Pushing into another (single) stone.
+        if moveStone(move: move, stoneIndex: lIndex!, layout: &layout) {
+            layout.stones[stoneIndex] = nextL
+            return true
+        } else {
+            return false
+        }
+    }
+    if lIndex != nil && rIndex != nil {
+        // Pushing into multiple stones.
+        let lOriginalPos = layout.stones[lIndex!]
+        if !moveStone(move: move, stoneIndex: lIndex!, layout: &layout) {
+            return false;
+        }
+        if moveStone(move: move, stoneIndex: rIndex!, layout: &layout) {
+            layout.stones[stoneIndex] = nextL
+            return true
+        } else {
+            // Have to undo the first move.
+            layout.stones[lIndex!] = lOriginalPos
+            return false
+        }
+    }
+    if (lIndex != nil && rIndex == nil) || (lIndex == nil && rIndex != nil) {
+        if lIndex != nil {
+            if moveStone(move: move, stoneIndex: lIndex!, layout: &layout) {
+                layout.stones[stoneIndex] = nextL
+                return true
+            } else {
+                return false
+            }
+        } else {
+            if moveStone(move: move, stoneIndex: rIndex!, layout: &layout) {
+                layout.stones[stoneIndex] = nextL
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+    // Pushing onto empty space.
+    layout.stones[stoneIndex] = nextL
     return true
 }
 
