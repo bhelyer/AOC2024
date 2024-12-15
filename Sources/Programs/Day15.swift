@@ -5,8 +5,8 @@ class Day15: Program {
     }
     
     func part1(input: String) -> Int {
-        let puzzle = Puzzle(parseFrom: input)
-        let finalLayout = apply(moves: puzzle.moves, toLayout: puzzle.layout)
+        let puzzle = Puzzle(parseFrom: input, wide: false)
+        let finalLayout = apply(moves: puzzle.moves, toLayout: puzzle.layout, print: false)
         let gpsScores = finalLayout.stones.map { calculateGpsCoordinate(stone: $0, mapSize: finalLayout.mapSize) }
         var sum = 0
         for gpsScore in gpsScores {
@@ -16,7 +16,14 @@ class Day15: Program {
     }
     
     func part2(input: String) -> Int {
-        return 0
+        let puzzle = Puzzle(parseFrom: input, wide: true)
+        let finalLayout = apply(moves: puzzle.moves, toLayout: puzzle.layout, print: true)
+        let gpsScores = finalLayout.stones.map { calculateGpsCoordinate(stone: $0, mapSize: finalLayout.mapSize) }
+        var sum = 0
+        for gpsScore in gpsScores {
+            sum += gpsScore
+        }
+        return sum
     }
 }
 
@@ -24,7 +31,7 @@ struct Puzzle {
     let moves: [CardinalDirection]
     let layout: Layout
 
-    init(parseFrom input: String) {
+    init(parseFrom input: String, wide: Bool) {
         let lines = input.split { $0.isNewline }
         var width = 0
         var height = 0
@@ -42,9 +49,10 @@ struct Puzzle {
                 height += 1
                 width = line.count
                 for x in 0..<arr.count {
-                    let p = currentPoint + Point(x: x, y: 0)
+                    let p = currentPoint + Point(x: x * (wide ? 2 : 1), y: 0)
                     if arr[x] == "#" {
                         walls.append(p)
+                        if wide { walls.append(p + upDownLeftRight[3]) }
                     } else if arr[x] == "O" {
                         stones.append(p)
                     } else if arr[x] == "@" {
@@ -64,12 +72,14 @@ struct Puzzle {
             }
         }
         self.moves = moves
-        self.layout = Layout(mapSize: Point(x: width, y: height), walls: walls, stones: stones, robot: robot)
+        self.layout = Layout(mapSize: Point(x: width * (wide ? 2 : 1), y: height),
+                             wide: wide, walls: walls, stones: stones, robot: robot)
     }
 }
 
 struct Layout: CustomStringConvertible {
     let mapSize: Point
+    let wide: Bool
     let walls: [Point]
     var stones: [Point]
     var robot: Point
@@ -82,7 +92,9 @@ struct Layout: CustomStringConvertible {
                 if let _ = walls.first(where: { $0 == p }) {
                     str += "#"
                 } else if let _ = stones.first(where: { $0 == p }) {
-                    str += "O"
+                    str += wide ? "[" : "O"
+                } else if wide, let _ = stones.first(where: { $0 == p + upDownLeftRight[2] }) {
+                    str += "]"
                 } else if robot == p {
                     str += "@"
                 } else {
@@ -95,11 +107,11 @@ struct Layout: CustomStringConvertible {
     }
 }
 
-func apply(moves: [CardinalDirection], toLayout layout: Layout) -> Layout {
+func apply(moves: [CardinalDirection], toLayout layout: Layout, print printMoves: Bool) -> Layout {
     var layout = layout
     for move in moves {
-        //print(move)
-        //print(layout)
+        if printMoves { print(move) }
+        if printMoves { print(layout) }
         apply(move: move, toLayout: &layout)
     }
     return layout
