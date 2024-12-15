@@ -98,6 +98,29 @@ struct Layout: CustomStringConvertible {
         }
         return nil
     }
+    
+    func validate(against layout: Layout) -> Bool {
+        if !layout.wide {
+            return true
+        }
+        let againstStr = layout.description
+        let expectedWalls = againstStr.count { $0 == "#" }
+        let expectedFloors = againstStr.count { $0 == "." }
+        let expectedLeftStones = againstStr.count { $0 == "[" }
+        let expectedRightStones = againstStr.count { $0 == "]" }
+        let expectedRobots = 1
+
+        let ourStr = description
+        let actualWalls = ourStr.count { $0 == "#" }
+        let actualFloors = ourStr.count { $0 == "." }
+        let actualLeftStones = ourStr.count { $0 == "[" }
+        let actualRightStones = ourStr.count { $0 == "]" }
+        let actualRobots = ourStr.count { $0 == "@" }
+        
+        return actualWalls == expectedWalls && actualFloors == expectedFloors &&
+        actualLeftStones == expectedLeftStones && actualRightStones == expectedRightStones &&
+        actualRobots == expectedRobots
+    }
 
     var description: String {
         var str = ""
@@ -125,22 +148,10 @@ struct Layout: CustomStringConvertible {
 func apply(moves: [CardinalDirection], toLayout layout: Layout, print printMoves: Bool) -> Layout {
     if printMoves { print("INITIAL") }
     if printMoves { print(layout) }
+    
     var layout = layout
     for move in moves {
         if printMoves { print(move) }
-        var move = move
-        if printMoves {
-            let moveStr = readLine(strippingNewline: true)
-            if moveStr == "h" {
-                move = .left
-            } else if moveStr == "l" {
-                move = .right
-            } else if moveStr == "j" {
-                move = .down
-            } else if moveStr == "k" {
-                move = .up
-            }
-        }
         apply(move: move, toLayout: &layout)
         if printMoves { print(layout) }
     }
