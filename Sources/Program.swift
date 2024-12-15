@@ -1,11 +1,8 @@
 /// Each day's puzzle is represented by a `Program`.
 /// Use the `getProgram` function to create an instance.
+@MainActor
 protocol Program {
-    func run(input: String) throws
-}
-
-protocol AsyncProgram {
-    func runAsync(input: String) throws
+    func run(input: String) async throws
 }
 
 /// These can be thrown by `getProgram`, and `Program.run`
@@ -15,6 +12,7 @@ enum ProgramError: Error {
 }
 
 /// Get a `Program` instance by the specified name.
+@MainActor
 func getProgram(byName programName: String) throws -> Program {
     switch programName {
     case "day1": return Day1()

@@ -1,7 +1,7 @@
 class Day14: Program {
-    func run(input: String) throws {
+    func run(input: String) async throws {
         try Day14.part1(input: input)
-        try Day14.part2(input: input)
+        try await Day14.part2(input: input)
     }
     
     static func part1(input: String) throws {
@@ -13,12 +13,12 @@ class Day14: Program {
             // Sample input.
             Point(x: 11, y: 7)
         }
-        let finalState = simulate(initial: robots, mapSize: dimensions, forSeconds: 100)
-        print("Safety Factor=\(calculateSafetyFactor(robots: finalState, mapSize: dimensions))")
+        let finalState = simulate(initial: RobotState(n: 0, robots: robots), mapSize: dimensions, forSeconds: 100)
+        print("Safety Factor=\(calculateSafetyFactor(robots: finalState.robots, mapSize: dimensions))")
     }
     
-    static func part2(input: String) throws {
-        var robots = parseRobots(from: input)
+    static func part2(input: String) async throws {
+        let robots = parseRobots(from: input)
         let dimensions = if robots.count > 20 {
             // Real input.
             Point(x: 101, y: 103)
@@ -26,15 +26,35 @@ class Day14: Program {
             // Sample input.
             Point(x: 11, y: 7)
         }
-        for i in 0..<Int.max {
-            robots = simulate(initial: robots, mapSize: dimensions, forSeconds: 1)
-            var grid = Grid(dimensions: dimensions, c: ".")
-            for robot in robots {
-                grid.set(robot.pos, c: "R")
-            }
-            if grid.findFirst(s: "RRRR") != nil {
-                print("N=\(i)")
-                print(grid)
+
+        var latestState = RobotState(n: 0, robots: robots)
+        while true {
+            let initialState = latestState
+            let groupSize = 1000
+            await withTaskGroup(of: RobotState.self) { taskGroup in
+                for i in 1..<groupSize {
+                    taskGroup.addTask {
+                        var result = simulate(initial: initialState, mapSize: dimensions, forSeconds: i)
+                        var grid = Grid(dimensions: dimensions, c: ".")
+                        for robot in result.robots {
+                            grid.set(robot.pos, c: "R")
+                        }
+                        if grid.findFirst(s: "RRRRRRRRRR") != nil {
+                            result.possibleImage = grid
+                        }
+                        return result
+                    }
+                }
+                for await result in taskGroup {
+                    if result.n > latestState.n {
+                        latestState = result
+                    }
+                    if let grid = result.possibleImage {
+                        print("N=\(result.n)")
+                        print(grid)
+                        return
+                    }
+                }
             }
         }
     }
@@ -43,6 +63,12 @@ class Day14: Program {
 struct Robot {
     let pos: Point
     let vel: Point
+}
+
+struct RobotState {
+    let n: Int
+    let robots: [Robot]
+    var possibleImage: Grid? = nil
 }
 
 func parseRobots(from input: String) -> [Robot] {
@@ -92,8 +118,8 @@ func parsePoint(from arr: ArraySlice<Character>) -> Point? {
     return Point(x: x, y: y)
 }
 
-func simulate(initial robots: [Robot], mapSize: Point, forSeconds n: Int) -> [Robot] {
-    var simulatedRobots = robots
+func simulate(initial robots: RobotState, mapSize: Point, forSeconds n: Int) -> RobotState {
+    var simulatedRobots = robots.robots
 
     for _ in 0..<n {
         for i in 0..<simulatedRobots.count {
@@ -101,7 +127,7 @@ func simulate(initial robots: [Robot], mapSize: Point, forSeconds n: Int) -> [Ro
         }
     }
 
-    return simulatedRobots
+    return RobotState(n: robots.n + n, robots: simulatedRobots)
 }
 
 func simulate(robot: Robot, mapSize: Point) -> Robot {

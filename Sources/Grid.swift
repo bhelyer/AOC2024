@@ -69,15 +69,22 @@ struct Grid: CustomStringConvertible {
     /// Find a horizontal string of characters.
     func findFirst(s: String) -> Point? {
         let arr = Array<Character>(s)
-        guard let first = findFirst(c: arr[arr.startIndex]) else {
-            return nil
-        }
-        for i in arr.startIndex+1..<arr.endIndex {
-            guard get(first + Point(x: first.x + i, y: first.y)) == arr[i] else {
-                return nil
+        for y in 0..<height {
+            for x in 0..<width {
+                var found = true
+                for i in arr.startIndex..<arr.endIndex {
+                    let p = Point(x: x + i, y: y)
+                    if get(p) != arr[i] {
+                        found = false
+                        break
+                    }
+                }
+                if found {
+                    return Point(x: x, y: y)
+                }
             }
         }
-        return first
+        return nil
     }
     
     /// Find the first position of a non-matching character, or `nil` if it couldn't be found.
