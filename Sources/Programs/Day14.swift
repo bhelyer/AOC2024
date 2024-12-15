@@ -1,10 +1,10 @@
 class Day14: Program {
     func run(input: String) throws {
-        try part1(input: input)
-        try part2(input: input)
+        try Day14.part1(input: input)
+        try Day14.part2(input: input)
     }
     
-    func part1(input: String) throws {
+    static func part1(input: String) throws {
         let robots = parseRobots(from: input)
         let dimensions = if robots.count > 20 {
             // Real input.
@@ -14,11 +14,29 @@ class Day14: Program {
             Point(x: 11, y: 7)
         }
         let finalState = simulate(initial: robots, mapSize: dimensions, forSeconds: 100)
-        print("Safety Factor=\(calculateSafetyFactor(robots: finalState))")
+        print("Safety Factor=\(calculateSafetyFactor(robots: finalState, mapSize: dimensions))")
     }
     
-    func part2(input: String) throws {
-        print("Day 14, part 2.")
+    static func part2(input: String) throws {
+        var robots = parseRobots(from: input)
+        let dimensions = if robots.count > 20 {
+            // Real input.
+            Point(x: 101, y: 103)
+        } else {
+            // Sample input.
+            Point(x: 11, y: 7)
+        }
+        for i in 0..<Int.max {
+            robots = simulate(initial: robots, mapSize: dimensions, forSeconds: 1)
+            var grid = Grid(dimensions: dimensions, c: ".")
+            for robot in robots {
+                grid.set(robot.pos, c: "R")
+            }
+            if grid.findFirst(s: "RRRR") != nil {
+                print("N=\(i)")
+                print(grid)
+            }
+        }
     }
 }
 
@@ -75,9 +93,56 @@ func parsePoint(from arr: ArraySlice<Character>) -> Point? {
 }
 
 func simulate(initial robots: [Robot], mapSize: Point, forSeconds n: Int) -> [Robot] {
-    return robots
+    var simulatedRobots = robots
+
+    for _ in 0..<n {
+        for i in 0..<simulatedRobots.count {
+            simulatedRobots[i] = simulate(robot: simulatedRobots[i], mapSize: mapSize)
+        }
+    }
+
+    return simulatedRobots
 }
 
-func calculateSafetyFactor(robots: [Robot]) -> Int {
-    return 0
+func simulate(robot: Robot, mapSize: Point) -> Robot {
+    let nextPos = robot.pos + robot.vel
+    var x = nextPos.x
+    var y = nextPos.y
+    if y < 0 {
+        y += mapSize.y
+    } else if y >= mapSize.y {
+        y -= mapSize.y
+    }
+    if x < 0 {
+        x += mapSize.x
+    } else if x >= mapSize.x {
+        x -= mapSize.x
+    }
+    return Robot(pos: Point(x: x, y: y), vel: robot.vel)
+}
+
+func calculateSafetyFactor(robots: [Robot], mapSize: Point) -> Int {
+    let hw = mapSize.x / 2
+    let hh = mapSize.y / 2
+    // A|B
+    // -+-
+    // C|D
+    var a = 0
+    var b = 0
+    var c = 0
+    var d = 0
+
+    for robot in robots {
+        if robot.pos.x < hw && robot.pos.y < hh {
+            a += 1
+        } else if robot.pos.x > hw && robot.pos.y < hh {
+            b += 1
+        } else if robot.pos.x < hw && robot.pos.y > hh {
+            c += 1
+        } else if robot.pos.x > hw && robot.pos.y > hh {
+            d += 1
+        }
+    }
+
+    return a * b * c * d
 }

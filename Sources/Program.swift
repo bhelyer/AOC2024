@@ -4,6 +4,10 @@ protocol Program {
     func run(input: String) throws
 }
 
+protocol AsyncProgram {
+    func runAsync(input: String) throws
+}
+
 /// These can be thrown by `getProgram`, and `Program.run`
 enum ProgramError: Error {
     case noSuchProgram

@@ -23,6 +23,16 @@ struct Grid: CustomStringConvertible {
         grid = arrays
     }
     
+    init(dimensions: Point, c: Character) {
+        self.width = dimensions.x
+        self.height = dimensions.y
+        var arrays: [[Character]] = []
+        for _ in 0..<dimensions.y {
+            arrays.append([Character](repeating: c, count: dimensions.x))
+        }
+        self.grid = arrays
+    }
+    
     /// Look up the `Character` at the given coordinates.
     /// If the point is out of bounds, a space is returned.
     func get(_ p: Point) -> Character {
@@ -54,6 +64,20 @@ struct Grid: CustomStringConvertible {
             }
         }
         return nil
+    }
+    
+    /// Find a horizontal string of characters.
+    func findFirst(s: String) -> Point? {
+        let arr = Array<Character>(s)
+        guard let first = findFirst(c: arr[arr.startIndex]) else {
+            return nil
+        }
+        for i in arr.startIndex+1..<arr.endIndex {
+            guard get(first + Point(x: first.x + i, y: first.y)) == arr[i] else {
+                return nil
+            }
+        }
+        return first
     }
     
     /// Find the first position of a non-matching character, or `nil` if it couldn't be found.
