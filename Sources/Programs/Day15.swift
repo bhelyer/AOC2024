@@ -1,5 +1,3 @@
-import Darwin
-
 class Day15: Program {
     func run(input: String) async throws {
         print("Day 15 Part 1 = \(part1(input: input))")
@@ -9,23 +7,13 @@ class Day15: Program {
     func part1(input: String) -> Int {
         let puzzle = Puzzle(parseFrom: input, wide: false)
         let finalLayout = apply(moves: puzzle.moves, toLayout: puzzle.layout, print: false)
-        let gpsScores = finalLayout.stones.map { calculateGpsCoordinate(stone: $0, mapSize: finalLayout.mapSize) }
-        var sum = 0
-        for gpsScore in gpsScores {
-            sum += gpsScore
-        }
-        return sum
+        return calculateGpsSum(layout: finalLayout)
     }
     
     func part2(input: String) -> Int {
         let puzzle = Puzzle(parseFrom: input, wide: true)
         let finalLayout = apply(moves: puzzle.moves, toLayout: puzzle.layout, print: false)
-        let gpsScores = finalLayout.stones.map { calculateGpsCoordinate(stone: $0, mapSize: finalLayout.mapSize) }
-        var sum = 0
-        for gpsScore in gpsScores {
-            sum += gpsScore
-        }
-        return sum
+        return calculateGpsSum(layout: finalLayout)
     }
 }
 
@@ -151,10 +139,11 @@ func apply(moves: [CardinalDirection], toLayout layout: Layout, print printMoves
     
     var layout = layout
     for move in moves {
+        if printMoves { print(layout) }
         if printMoves { print(move) }
         apply(move: move, toLayout: &layout)
-        if printMoves { print(layout) }
     }
+    if printMoves { print(layout) }
     return layout
 }
 
@@ -226,18 +215,20 @@ func moveWideStone(move: CardinalDirection, stoneIndex: Int, layout: inout Layou
     }
     if lIndex != nil && rIndex != nil {
         // Pushing into multiple stones.
-        let lOriginalPos = layout.stones[lIndex!]
-        if !moveStone(move: move, stoneIndex: lIndex!, layout: &layout) {
+        //
+        // Operate on a copy first, then move.
+        // This lets us avoid having to validate the move chain first,
+        // or undo any cascading moves. It's a lot less efficient, I'd
+        // imagine.
+        var layoutCopy = layout
+        if !moveStone(move: move, stoneIndex: lIndex!, layout: &layoutCopy) ||
+           !moveStone(move: move, stoneIndex: rIndex!, layout: &layoutCopy)  {
             return false;
         }
-        if moveStone(move: move, stoneIndex: rIndex!, layout: &layout) {
-            layout.stones[stoneIndex] = nextL
-            return true
-        } else {
-            // Have to undo the first move.
-            layout.stones[lIndex!] = lOriginalPos
-            return false
-        }
+        _ = moveStone(move: move, stoneIndex: lIndex!, layout: &layout)
+        _ = moveStone(move: move, stoneIndex: rIndex!, layout: &layout)
+        layout.stones[stoneIndex] = nextL
+        return true
     }
     if (lIndex != nil && rIndex == nil) || (lIndex == nil && rIndex != nil) {
         if lIndex != nil {
@@ -263,4 +254,13 @@ func moveWideStone(move: CardinalDirection, stoneIndex: Int, layout: inout Layou
 
 func calculateGpsCoordinate(stone: Point, mapSize: Point) -> Int {
     return 100 * stone.y + stone.x
+}
+
+func calculateGpsSum(layout: Layout) -> Int {
+    let gpsScores = layout.stones.map { calculateGpsCoordinate(stone: $0, mapSize: layout.mapSize) }
+    var sum = 0
+    for gpsScore in gpsScores {
+        sum += gpsScore
+    }
+    return sum
 }
