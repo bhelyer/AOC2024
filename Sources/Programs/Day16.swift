@@ -34,6 +34,7 @@ private struct Graph {
 private struct Solution {
     var dist: [Point: Double] = [:]
     var prev: [Point: Point] = [:]
+    var dir: [Point: Point] = [:]
 }
 
 private func findShortestPath(maze: Grid, start: Point, goal: Point) -> Solution {
@@ -46,21 +47,38 @@ private func findShortestPath(maze: Grid, start: Point, goal: Point) -> Solution
         q.append(v)
     }
     solution.dist[start] = 0
+    solution.dir[start] = Point(x: 1, y: 0)
     
     while !q.isEmpty {
         q.sort { solution.dist[$0, default: Double.infinity] > solution.dist[$1, default: Double.infinity] }
         let u = q.popLast()!
+        let prevDir = solution.dir[u]!
         
         for v in getNeighbours(maze: maze, point: u).filter({ q.contains($0) }) {
-            let alt = solution.dist[u]! + 1
+            let (moveCost, nextDir) = getMoveCost(prevDir: prevDir, a: u, b: v)
+            let alt = solution.dist[u]! + moveCost
             if alt < solution.dist[v]! {
                 solution.dist[v] = alt
                 solution.prev[v] = u
+                solution.dir[v] = nextDir
             }
         }
     }
     
     return solution
+}
+
+func getMoveCost(prevDir: Point, a: Point, b: Point) -> (Double, Point)
+{
+    if a + prevDir == b {
+        return (1.0, prevDir)
+    } else if a + rotateLeft(prevDir) == b {
+        return (1001.0, rotateLeft(prevDir))
+    } else if a + rotateRight(prevDir) == b {
+        return (1001.0, rotateRight(prevDir))
+    } else {
+        return (2002.0, rotateRight(rotateRight(prevDir)))
+    }
 }
 
 func getNeighbours(maze: Grid, point: Point) -> [Point] {
@@ -97,7 +115,7 @@ private func cost(solution: Solution, start: Point, target: Point) -> Int {
 private func constructPath(fromSolution solution: Solution, start: Point, target: Point) -> [Point] {
     var path: [Point] = []
     var u: Point? = target
-    var prev = solution.prev[target]
+    let prev = solution.prev[target]
     if prev != nil || u == start {
         while u != nil {
             path.append(u!)
@@ -115,7 +133,7 @@ private func cost(path: [Point]) -> Int {
     var currentPos = path.first!
     var currentCost = 0
     for i in 1..<path.count {
-        var nextPos = path[i]
+        let nextPos = path[i]
         if currentPos + currentDir == nextPos {
             currentCost += 1
             currentPos = nextPos
