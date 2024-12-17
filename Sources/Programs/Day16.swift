@@ -1,101 +1,121 @@
 class Day16: Program {
     func run(input: String) async throws {
         let grid = try Grid(input)
-        print("Day 16 part 1 = \(lowestScore(maze: grid)!)")
+        if let score = lowestScore(maze: grid) {
+            print("Day 16 part 1 = \(score)")
+        } else {
+            print("Day 16 part 1 = no solution!")
+        }
     }
-}
-
-private enum Move {
-    case moveForward
-    case rotateLeft
-    case rotateRight
 }
 
 private func lowestScore(maze: Grid) -> Int? {
     guard let startPos = maze.findFirst(c: "S") else {
         return nil
     }
-    guard let _ = maze.findFirst(c: "E") else {
+    guard let endPos = maze.findFirst(c: "E") else {
         return nil
     }
+    let solution = findShortestPath(maze: maze, start: startPos, goal: endPos)
+    let path = constructPath(fromSolution: solution, start: startPos, target: endPos)
+    var grid = maze
+    for point in path[1..<path.count-1] {
+        grid.set(point, c: "X")
+    }
+    print(grid)
     
-    var solutions = findSolutions(maze: maze, start: startPos)
-    //print(solutions)
-    /*
-    for solution in solutions {
-        print("cost = \(cost(solution: solution))")
-        var grid = maze
-        for point in solution[1..<solution.count-1] {
-            grid.set(point, c: "X")
+    return cost(solution: solution, start: startPos, target: endPos)
+}
+
+private struct Graph {
+    var vertices: [Point]
+}
+
+private struct Solution {
+    var dist: [Point: Double] = [:]
+    var prev: [Point: Point] = [:]
+}
+
+private func findShortestPath(maze: Grid, start: Point, goal: Point) -> Solution {
+    var solution = Solution()
+    let vertices = getPoints(from: maze)
+    var q: [Point] = []
+    for v in vertices {
+        solution.dist[v] = Double.infinity
+        solution.prev[v] = nil
+        q.append(v)
+    }
+    solution.dist[start] = 0
+    
+    while !q.isEmpty {
+        q.sort { solution.dist[$0, default: Double.infinity] > solution.dist[$1, default: Double.infinity] }
+        let u = q.popLast()!
+        
+        for v in getNeighbours(maze: maze, point: u).filter({ q.contains($0) }) {
+            let alt = solution.dist[u]! + 1
+            if alt < solution.dist[v]! {
+                solution.dist[v] = alt
+                solution.prev[v] = u
+            }
         }
-        print(grid)
     }
-     */
-    var costs = solutions.map { cost(solution: $0) }
-    return costs.min()!
+    
+    return solution
 }
 
-private func findSolutions(maze: Grid, start: Point) -> [[Point]] {
-    var solutions: [[Point]] = []
-    var path = [start]
-    recursiveSolve(maze: maze, path: path, solutions: &solutions)
-    return solutions
-}
-
-func recursiveSolve(maze: Grid, path: [Point], solutions: inout [[Point]]) {
-    var path = path
-    guard !path.isEmpty else {
-        return
-    }
-    if maze.get(path.last!) == "E" {
-        solutions.append(path)
-        return
-    }
-    var openPoints = findOpenPoints(maze: maze, path: path)
-    if openPoints.isEmpty {
-        return
-    }
-    while openPoints.count == 1 {
-        path.append(openPoints.first!)
-        if maze.get(path.last!) == "E" {
-            solutions.append(path)
-            return
-        }
-        openPoints = findOpenPoints(maze: maze, path: path)
-    }
-    if openPoints.isEmpty {
-        return
-    }
-    for openPoint in openPoints {
-        var fork = path
-        fork.append(openPoint)
-        recursiveSolve(maze: maze, path: fork, solutions: &solutions)
-    }
-}
-
-private func findOpenPoints(maze: Grid, path: [Point]) -> [Point] {
-    if path.isEmpty {
-        return []
-    }
-    var openPaths: [Point] = []
+func getNeighbours(maze: Grid, point: Point) -> [Point] {
+    var neighbours: [Point] = []
     for dir in upDownLeftRight {
-        let p = path.last! + dir
-        if !path.contains(p) && maze.get(p) != "#" {
-            openPaths.append(p)
+        let p = point + dir
+        let c = maze.get(p)
+        if c != "#" && c != " " {
+            neighbours.append(p)
         }
     }
-    return openPaths
+    return neighbours
 }
 
-private func cost(solution: [Point]) -> Int {
-    guard !solution.isEmpty else {
+private func getPoints(from maze: Grid) -> [Point] {
+    var points: [Point] = []
+    for y in 0..<maze.height {
+        for x in 0..<maze.width {
+            let p = Point(x: x, y: y)
+            let c = maze.get(p)
+            if c != "#" {
+                points.append(p)
+            }
+        }
+    }
+    return points
+}
+
+private func cost(solution: Solution, start: Point, target: Point) -> Int {
+    let path = constructPath(fromSolution: solution, start: start, target: target)
+    return cost(path: path)
+}
+
+private func constructPath(fromSolution solution: Solution, start: Point, target: Point) -> [Point] {
+    var path: [Point] = []
+    var u: Point? = target
+    var prev = solution.prev[target]
+    if prev != nil || u == start {
+        while u != nil {
+            path.append(u!)
+            u = solution.prev[u!]
+        }
+    }
+    return path.reversed()
+}
+
+private func cost(path: [Point]) -> Int {
+    guard !path.isEmpty else {
         return 0
     }
     var currentDir = upDownLeftRight[3]
-    var currentPos = solution.first!
+    var currentPos = path.first!
     var currentCost = 0
-    for i in 1..<solution.count {
-        var nextPos = solution[i]
+    for i in 1..<path.count {
+        var nextPos = path[i]
         if currentPos + currentDir == nextPos {
             currentCost += 1
             currentPos = nextPos
