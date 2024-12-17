@@ -38,7 +38,7 @@ struct ClawMachine {
     let target: Point
 }
 
-struct Solution {
+private struct Solution {
     let a: Int
     let b: Int
 }
@@ -101,7 +101,7 @@ func parsePrizeLine(line: String.SubSequence) -> Point? {
     return Point(x: x, y: y)
 }
 
-func iterativeSolve(machine: ClawMachine, maxInput: Int) -> [Solution] {
+private func iterativeSolve(machine: ClawMachine, maxInput: Int) -> [Solution] {
     var solutions: [Solution] = []
     
     for a in 0...maxInput {
@@ -121,7 +121,7 @@ func iterativeSolve(machine: ClawMachine, maxInput: Int) -> [Solution] {
     return solutions
 }
 
-func findCheapest(solutions: [Solution]) -> Solution? {
+private func findCheapest(solutions: [Solution]) -> Solution? {
     if solutions.isEmpty {
         return nil
     }
@@ -130,11 +130,11 @@ func findCheapest(solutions: [Solution]) -> Solution? {
     return mut.first!
 }
 
-func cost(_ solution: Solution) -> Int {
+private func cost(_ solution: Solution) -> Int {
     return solution.a * 3 + solution.b
 }
 
-func solve(machine: ClawMachine) -> [Solution] {
+private func solve(machine: ClawMachine) -> [Solution] {
     // 1. Decide which unknown you wish to eliminate.
     let a0 = machine.a.x
     let a1 = machine.a.y
@@ -192,7 +192,7 @@ func gcd(_ a: Int, _ b: Int) -> Int {
     return a
 }
 
-func check(machine: ClawMachine, solution: Solution) -> Bool {
+private func check(machine: ClawMachine, solution: Solution) -> Bool {
     return (machine.a.x * solution.a + machine.b.x * solution.b == machine.target.x) &&
            (machine.a.y * solution.a + machine.b.y * solution.b == machine.target.y)
 }
