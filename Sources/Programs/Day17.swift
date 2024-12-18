@@ -1,8 +1,26 @@
 class Day17: Program {
     func run(input: String) async throws {
+        part1(input)
+        part2(input)
+    }
+
+    func part1(_ input: String) {
         var computer = Computer(input: input)
         let output = computer.run()
         printOutput(output)
+    }
+    
+    func part2(_ input: String) {
+        let initialComputer = Computer(input: input)
+        for a in 0..<Int.max {
+            var computer = initialComputer
+            computer.a = a
+            let output = computer.run()
+            if output == initialComputer.program {
+                print("A=\(a)")
+                return
+            }
+        }
     }
 }
 
