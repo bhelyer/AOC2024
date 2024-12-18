@@ -1,7 +1,8 @@
 class Day17: Program {
     func run(input: String) async throws {
         var computer = Computer(input: input)
-        computer.run()
+        let output = computer.run()
+        printOutput(output)
     }
 }
 
@@ -11,6 +12,8 @@ private struct Computer: CustomStringConvertible {
     var c: Int = 0
     var ip: Int = 0
     var program: [Int] = []
+    
+    private var output: [Int] = []
 
     init(input: String) {
         let lines = input.split { $0.isNewline }
@@ -31,16 +34,14 @@ private struct Computer: CustomStringConvertible {
         return "a=\(a) b=\(b) c=\(c) ip=\(ip)\nprogram=\(program)"
     }
     
-    mutating func run() {
+    mutating func run() -> [Int] {
+        output = []
         while ip < program.count {
-            //print(description)
             let instruction = program[ip]
             let operand = program[ip + 1]
-            //print("run: \(instruction) \(operand)")
             execute(instruction: instruction, operand: operand)
         }
-
-        print("") // Print a newline.
+        return output
     }
     
     mutating func execute(instruction: Int, operand: Int) {
@@ -86,7 +87,7 @@ private struct Computer: CustomStringConvertible {
     }
     
     mutating func out(_ operand: Int) {
-        print("\(combo(operand) % 8),", terminator: "")
+        output.append(combo(operand) % 8)
         ip += 2
     }
     
@@ -138,4 +139,15 @@ private func parseProgram(_ line: String.SubSequence) -> [Int] {
         program.append(op)
     }
     return program
+}
+
+/// Print the output of `Computer.run` in the puzzle format.
+func printOutput(_ output: [Int]) {
+    for i in 0..<output.count {
+        print(output[i], terminator: "")
+        if i < output.count - 1 {
+            print(",", terminator: "")
+        }
+    }
+    print("") // Print a newline.
 }
