@@ -5,10 +5,11 @@ class Day17: Program {
     }
 }
 
-private struct Computer {
+private struct Computer: CustomStringConvertible {
     var a: Int = 0
     var b: Int = 0
     var c: Int = 0
+    var ip: Int = 0
     var program: [Int] = []
 
     init(input: String) {
@@ -26,11 +27,88 @@ private struct Computer {
         }
     }
     
+    var description: String {
+        return "a=\(a) b=\(b) c=\(c) ip=\(ip)\nprogram=\(program)"
+    }
+    
     mutating func run() {
-        print("a = \(a)")
-        print("b = \(b)")
-        print("c = \(c)")
-        print("program = \(program)")
+        while ip < program.count {
+            //print(description)
+            let instruction = program[ip]
+            let operand = program[ip + 1]
+            //print("run: \(instruction) \(operand)")
+            execute(instruction: instruction, operand: operand)
+        }
+
+        print("") // Print a newline.
+    }
+    
+    mutating func execute(instruction: Int, operand: Int) {
+        switch instruction {
+        case 0: adv(operand)
+        case 1: bxl(operand)
+        case 2: bst(operand)
+        case 3: jnz(operand)
+        case 4: bxc(operand)
+        case 5: out(operand)
+        case 6: bdv(operand)
+        case 7: cdv(operand)
+        default: break
+        }
+    }
+    
+    mutating func adv(_ operand: Int) {
+        a = a >> combo(operand)
+        ip += 2
+    }
+    
+    mutating func bxl(_ operand: Int) {
+        b = b ^ operand
+        ip += 2
+    }
+    
+    mutating func bst(_ operand: Int) {
+        b = combo(operand) % 8
+        ip += 2
+    }
+    
+    mutating func jnz(_ operand: Int) {
+        if a != 0 {
+            ip = operand
+        } else {
+            ip += 2
+        }
+    }
+    
+    mutating func bxc(_ operand: Int) {
+        b = b ^ c
+        ip += 2
+    }
+    
+    mutating func out(_ operand: Int) {
+        print("\(combo(operand) % 8),", terminator: "")
+        ip += 2
+    }
+    
+    mutating func bdv(_ operand: Int) {
+        b = a >> combo(operand)
+        ip += 2
+    }
+    
+    mutating func cdv(_ operand: Int) {
+        c = a >> combo(operand)
+        ip += 2
+    }
+    
+    func combo(_ operand: Int) -> Int {
+        switch operand {
+        case 4: return a
+        case 5: return b
+        case 6: return c
+        case 7: print("ERROR 7")
+        default: break
+        }
+        return operand
     }
 }
 
