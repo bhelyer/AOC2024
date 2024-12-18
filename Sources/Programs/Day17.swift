@@ -1,7 +1,7 @@
 class Day17: Program {
     func run(input: String) async throws {
         part1(input)
-        part2(input)
+        await part2(input)
     }
 
     func part1(_ input: String) {
@@ -10,8 +10,38 @@ class Day17: Program {
         printOutput(output)
     }
     
-    func part2(_ input: String) {
+    func part2(_ input: String) async {
         let initialComputer = Computer(input: input)
+        var i = 0
+        let groupSize = 10000
+        while true {
+            let computer = await withTaskGroup(of: Computer?.self) { taskGroup in
+                for a in i..<i+groupSize {
+                    taskGroup.addTask {
+                        var computer = initialComputer
+                        computer.a = a
+                        let output = computer.run()
+                        if output == initialComputer.program {
+                            computer.a = a
+                            return computer
+                        }
+                        return nil
+                    }
+                }
+                for await result in taskGroup {
+                    if result != nil {
+                        return result
+                    }
+                }
+                return nil
+            }
+            if let computer {
+                print("A=\(computer.a)")
+                return
+            }
+            i += groupSize
+        }
+        /*
         for a in 0..<Int.max {
             var computer = initialComputer
             computer.a = a
@@ -21,10 +51,11 @@ class Day17: Program {
                 return
             }
         }
+         */
     }
 }
 
-private struct Computer: CustomStringConvertible {
+private struct Computer: CustomStringConvertible, Sendable {
     var a: Int = 0
     var b: Int = 0
     var c: Int = 0
