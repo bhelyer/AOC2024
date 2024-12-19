@@ -18,11 +18,26 @@ class Day18: Program {
     }
 }
 
+/// Return a grid after the bytes have fallen on to it (the maze).
 private func createGrid(dims: Point, toFall: Int,
                         input: [String.SubSequence]) -> Grid {
-    return Grid(dimensions: dims, c: ".")
+    var grid = Grid(dimensions: dims, c: ".")
+    for i in 0..<toFall {
+        let p = parsePoint(input[i])
+        grid.set(p, c: "#")
+    }
+    return grid
 }
 
+/// Find the shortest path from `start` to `end`, using only `.` tiles.
 private func findShortest(maze: Grid, start: Point, end: Point) -> [Point] {
     return []
+}
+
+/// Parse a string like `3,-2` into a `Point(x: 3, y: -2)`.
+private func parsePoint(_ input: String.SubSequence) -> Point {
+    let elements = input.split { $0 == "," }
+    let x = Int(String(elements[0]))!
+    let y = Int(String(elements[1]))!
+    return Point(x: x, y: y)
 }
