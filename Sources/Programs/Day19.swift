@@ -7,6 +7,11 @@ class Day19: Program {
         let patterns = lines[1..<lines.count]
         let possiblePatterns = patterns.filter { possible($0, towels) }
         print("Possible patterns = \(possiblePatterns.count)")
+        var sum = 0
+        for pattern in patterns {
+            sum += countAllPatterns(pattern, towels)
+        }
+        print("All patterns = \(sum)")
     }
 }
 
@@ -20,4 +25,22 @@ private func possible(_ pattern: any StringProtocol,
         }
     }
     return false
+}
+
+nonisolated(unsafe) var cache: [String: Int] = [:]
+private func countAllPatterns(_ pattern: any StringProtocol,
+                              _ towels: [String]) -> Int {
+    if let value = cache[String(pattern)] {
+        return value
+    }
+    var sum = 0
+    for towel in towels {
+        if towel == pattern { sum += 1 }
+        if pattern.hasPrefix(towel) {
+            let i = pattern.index(pattern.startIndex, offsetBy: towel.count)
+            sum += countAllPatterns(pattern[i...], towels)
+        }
+    }
+    cache[String(pattern)] = sum
+    return sum
 }
