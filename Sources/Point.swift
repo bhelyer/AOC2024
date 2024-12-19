@@ -35,7 +35,23 @@ struct Point: Hashable {
     }
 }
 
-let upDownLeftRight = [Point(x: 0, y: -1), Point(x: 0, y: 1), Point(x: -1, y: 0), Point(x: 1, y: 0)]
+let upDownLeftRight = [
+    Point(x:  0, y: -1),
+    Point(x:  0, y:  1),
+    Point(x: -1, y:  0),
+    Point(x:  1, y:  0)
+]
+
+let compassPoints = [
+    Point(x: -1, y: -1),
+    Point(x:  0, y: -1),
+    Point(x:  1, y: -1),
+    Point(x:  1, y:  0),
+    Point(x:  1, y:  1),
+    Point(x:  0, y:  1),
+    Point(x: -1, y:  1),
+    Point(x: -1, y:  0)
+]
 
 enum CardinalDirection {
     case up
