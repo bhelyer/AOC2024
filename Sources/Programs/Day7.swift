@@ -1,5 +1,3 @@
-import Darwin
-
 class Day7: Program {
     func run(input: String) throws {
         try part1(input: input)
