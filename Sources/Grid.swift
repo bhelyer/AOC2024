@@ -1,5 +1,5 @@
 /// A two-dimensional array of characters.
-struct Grid: CustomStringConvertible {
+struct Grid: CustomStringConvertible, Sendable {
     /// The width of the grid, in characters.
     public let width: Int
     /// The height of the grid in characters.
