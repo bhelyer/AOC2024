@@ -9,7 +9,9 @@ class Day20: Program {
         let grid = _grid
         
         //-- Find shortest path, and its time.
-        let path = await findShortest(maze: grid, start: start, end: end)
+        let graph = Graph(from: grid)
+        let (_, prev) = dijkstra(graph, source: start)
+        let path = sequence(prev: prev, source: start, target: end)
         print("Base path time is \(path.count - 1) picoseconds")
         
         //-- Find all the adjacent walls.
@@ -23,33 +25,60 @@ class Day20: Program {
         //-- Look for all the cheats.
         // Picoseconds Saved: Number Of Cheats
         var savings = [Int: Int]()
-        await withTaskGroup(of: Int.self) { taskGroup in
-            for wall in pathAdjacentWalls {
-                taskGroup.addTask {
-                    var cheatGrid = grid
-                    cheatGrid.set(wall, c: ".")
-                    let cheatPath = await findShortest(maze: cheatGrid, start: start, end: end)
-                    return path.count - cheatPath.count
+        for wall in pathAdjacentWalls {
+            var cheatPrev = prev
+            var pathPointIndex: Int? = nil
+            var otherPoints = [Vertex]()
+            for dir in upDownLeftRight {
+                let p = wall + dir
+                if let i = path.firstIndex(of: p) {
+                    if i < pathPointIndex ?? Int.max {
+                        if pathPointIndex != nil {
+                            otherPoints.append(Vertex(fromPoint: path[pathPointIndex!]))
+                        }
+                        pathPointIndex = i
+                        continue
+                    }
+                }
+                if grid.get(p) == "."  {
+                    otherPoints.append(Vertex(fromPoint: p))
                 }
             }
-            for await picosecondsSaved in taskGroup {
-                if picosecondsSaved > 0 {
-                    savings[picosecondsSaved, default: 0] += 1
-                }
+            guard let pathPointIndex else {
+                continue
+            }
+            let wallVertex = Vertex(fromPoint: wall)
+            cheatPrev[wallVertex] = Vertex(fromPoint: path[pathPointIndex])
+            for otherPoint in otherPoints {
+                cheatPrev[otherPoint] = wallVertex
+            }
+            
+            //var cheatGrid = grid
+            //cheatGrid.set(wall, c: ".")
+            //let cheatGraph = Graph(from: cheatGrid)
+            //let (_, cheatPrev) = dijkstra(cheatGraph, source: start)
+            let cheatPath = sequence(prev: cheatPrev, source: start, target: end)
+            if cheatPath.count != path.count {
+                savings[path.count - cheatPath.count, default: 0] += 1
             }
         }
 
+        var bigSavings = 0
         for (savings, noOfCheats) in savings {
             print("Cheats saving \(savings) picoseconds: \(noOfCheats)")
+            if (savings >= 100) {
+                bigSavings += noOfCheats
+            }
         }
+        print("Cheats saving you more than 100 picoseconds: \(bigSavings)")
     }
 }
 
 /// Find the shortest path from `start` to `end`, using only `.` tiles.
 private func findShortest(maze: Grid, start: Point, end: Point) async -> [Point] {
     let graph = Graph(from: maze)
-    let (_, prev) = await dijkstra(graph, source: start)
-    return await sequence(prev: prev, source: start, target: end)
+    let (_, prev) = dijkstra(graph, source: start)
+    return sequence(prev: prev, source: start, target: end)
 }
 
 private class Graph {
@@ -91,7 +120,7 @@ private class Vertex: Hashable {
 private typealias Dist = [Vertex: Double]
 private typealias Prev = [Vertex: Vertex?]
 
-private func dijkstra(_ graph: Graph, source: Point) async -> (Dist, Prev) {
+private func dijkstra(_ graph: Graph, source: Point) -> (Dist, Prev) {
     var dist: Dist = [:]
     var prev: Prev = [:]
     var q: [Vertex] = []
@@ -109,7 +138,7 @@ private func dijkstra(_ graph: Graph, source: Point) async -> (Dist, Prev) {
     while !q.isEmpty {
         q.sort { d($0) > d($1) }
         let u = q.popLast()!
-        let adjacent = await neighbours(of: u, in: graph)
+        let adjacent = neighbours(of: u, in: graph)
         for v in adjacent.filter({ q.contains($0) }) {
             let alt = dist[u]! + 1
             if alt < dist[v, default: Double.infinity] {
@@ -121,7 +150,7 @@ private func dijkstra(_ graph: Graph, source: Point) async -> (Dist, Prev) {
     return (dist, prev)
 }
 
-private func sequence(prev: Prev, source: Point, target: Point) async -> [Point] {
+private func sequence(prev: Prev, source: Point, target: Point) -> [Point] {
     var path: [Point] = []
     var u: Vertex? = Vertex(fromPoint: target)
     if prev[u!] != nil || u!.point == source {
@@ -133,7 +162,7 @@ private func sequence(prev: Prev, source: Point, target: Point) async -> [Point]
     return path.reversed()
 }
 
-private func neighbours(of v: Vertex, in graph: Graph) async -> [Vertex] {
+private func neighbours(of v: Vertex, in graph: Graph) -> [Vertex] {
     var vertices: [Vertex] = []
     for dir in upDownLeftRight {
         let p = v.point + dir
