@@ -27,7 +27,7 @@ private func possible(_ pattern: any StringProtocol,
     return false
 }
 
-nonisolated(unsafe) var cache: [String: Int] = [:]
+nonisolated(unsafe) private var cache: [String: Int] = [:]
 private func countAllPatterns(_ pattern: any StringProtocol,
                               _ towels: [String]) -> Int {
     if let value = cache[String(pattern)] {
