@@ -22,10 +22,10 @@ class Day23: Program {
     private func part1() -> Int {
         var trios =  Set<Trio>()
         for (a, _) in nodes {
-            let aIsT = a.starts(with: /t/)
+            let aIsT = a.starts(with: "t")
             for (b, c) in pairs {
-                let bIsT = b.starts(with: /t/)
-                let cIsT = c.starts(with: /t/)
+                let bIsT = b.starts(with: "t")
+                let cIsT = c.starts(with: "t")
                 guard aIsT || bIsT || cIsT else { continue }
                 if nodes[b]!.contains(a) && nodes[c]!.contains(a) {
                     var arr = [a, b, c]
