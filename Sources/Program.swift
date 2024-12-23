@@ -37,6 +37,7 @@ func getProgram(byName programName: String) throws -> Program {
     case "day20": return Day20()
     case "day21": return Day21()
     case "day22": return Day22()
+    case "day23": return Day23()
     default: throw ProgramError.noSuchProgram
     }
 }
