@@ -5,6 +5,7 @@ class Day23: Program {
     func run(input: String) async throws {
         parse(input)
         print("Part 1 = \(part1())")
+        print("Part 2 = \"\(part2())\"")
     }
     
     private func parse(_ input: String) {
@@ -35,6 +36,30 @@ class Day23: Program {
             }
         }
         return trios.count
+    }
+        
+    private func part2() -> String {
+        var largestSet = Set<Substring>()
+        for (a, computers) in nodes {
+            var set = Set<Substring>()
+            set.insert(a)
+            for c in computers { set.insert(c) }
+            for b in computers {
+                if !set.contains(b) { continue }
+                for c in computers {
+                    if c == b { continue }
+                    if !nodes[c]!.contains(b) {
+                        set.remove(c)
+                    }
+                }
+            }
+            if set.count > largestSet.count {
+                largestSet = set
+            }
+        }
+        var arr = Array(largestSet)
+        arr.sort()
+        return arr.joined(separator: ",")
     }
 }
 
