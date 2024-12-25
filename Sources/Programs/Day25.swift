@@ -4,13 +4,7 @@ class Day25: Program {
 
     func run(input: String) async throws {
         try parse(input)
-        for lock in locks {
-            print("lock: \(lock)")
-        }
-        for key in keys {
-            print("key: \(key)")
-        }
-        print("Day 25")
+        print("Day 25 part 1 = \(part1())")
     }
     
     private func parse(_ input: String) throws {
@@ -38,14 +32,13 @@ class Day25: Program {
             index += 1
             return .open
         }
+        // We use -1 to avoid having to skip the filled line.
         if line.first! == "#" {
-            locks.append([0, 0, 0, 0, 0])
-            index += 1
+            locks.append([-1, -1, -1, -1, -1])
             return .parsingLock
         }
         if line.first! == "." {
-            keys.append([0, 0, 0, 0, 0])
-            index += 1
+            keys.append([-1, -1, -1, -1, -1])
             return .parsingKey
         }
         throw ProgramError.invalidInput
@@ -93,6 +86,25 @@ class Day25: Program {
         locks[locks.count - 1] = lock
         index += 1
         return .parsingLock
+    }
+    
+    private func part1() -> Int {
+        var sum = 0
+        for lock in locks {
+            for key in keys {
+                var overlaps = 0
+                for i in 0..<5 {
+                    if lock[i] + key[i] > 5 {
+                        overlaps += 1
+                        break
+                    }
+                }
+                if overlaps == 0 {
+                    sum += 1
+                }
+            }
+        }
+        return sum
     }
 }
 
